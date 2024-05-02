@@ -2,6 +2,7 @@ import platform
 import ffmpeg
 import numpy as np
 import av
+import tempfile
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -31,25 +32,27 @@ def wav2(i, o, format):
     out.close()
     inp.close()
 
-
-def load_audio(file, sr):
+def load_audio(audio_bytes, sr):
     try:
-        # https://github.com/openai/whisper/blob/main/whisper/audio.py#L26
-        # This launches a subprocess to decode audio while down-mixing and resampling as necessary.
-        # Requires the ffmpeg CLI and `ffmpeg-python` package to be installed.
-        file = clean_path(file)  # 防止小白拷路径头尾带了空格和"和回车
-        print(file)
-        logger.info(f"Loading audio from {file}")
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(delete=False) as temp_audio:
+            # Write the audio bytes to the temporary file
+            temp_audio.write(audio_bytes)
+            temp_audio_path = temp_audio.name
+
+        # Pass the path of the temporary file to ffmpeg
         out, _ = (
-            ffmpeg.input(file, threads=0)
-            .output("-", format="f32le", acodec="pcm_f32le", ac=1, ar=sr)
-            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
+            ffmpeg.input(temp_audio_path)
+            .output("pipe:", format="f32le", acodec="pcm_f32le", ac=1, ar=sr)
+            .run(capture_stdout=True, capture_stderr=True)
         )
+
+        audio_array = np.frombuffer(out, np.float32)
+        logger.info(f"{audio_array[:1]}")
+        return audio_array
+
     except Exception as e:
         raise RuntimeError(f"Failed to load audio: {e}")
-
-    return np.frombuffer(out, np.float32).flatten()
-
 
 def clean_path(path_str):
     if platform.system() == "Windows":
