@@ -3,11 +3,11 @@ import ffmpeg
 import numpy as np
 import av
 import tempfile
+import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 
 def wav2(i, o, format):
@@ -32,27 +32,37 @@ def wav2(i, o, format):
     out.close()
     inp.close()
 
-def load_audio(audio_bytes, sr):
+
+def load_audio(file, sr):
     try:
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(delete=False) as temp_audio:
-            # Write the audio bytes to the temporary file
-            temp_audio.write(audio_bytes)
-            temp_audio_path = temp_audio.name
+        # https://github.com/openai/whisper/blob/main/whisper/audio.py#L26
+        # This launches a subprocess to decode audio while down-mixing and resampling as necessary.
+        # Requires the ffmpeg CLI and `ffmpeg-python` package to be installed.
+        temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        temp_file.close()
+        with open(temp_file.name, "wb") as f:
+            f.write(file.file.read())
+        file = temp_file.name
+        file = clean_path(file)
 
-        # Pass the path of the temporary file to ffmpeg
+        logger.info(f"Loading audio file: {file} with size {os.path.getsize(file)}")
+
         out, _ = (
-            ffmpeg.input(temp_audio_path)
-            .output("pipe:", format="f32le", acodec="pcm_f32le", ac=1, ar=sr)
-            .run(capture_stdout=True, capture_stderr=True)
+            ffmpeg.input(file, threads=0)
+            .output("-", format="f32le", acodec="pcm_f32le", ac=1, ar=sr)
+            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
         )
+        # Log the unique values in the array
+        logger.info(f"Unique values in audio array: {len(np.unique(np.frombuffer(out, np.float32)))}")
 
-        audio_array = np.frombuffer(out, np.float32)
-        logger.info(f"{audio_array[:1]}")
-        return audio_array
-
+        # Clean up the temporary file
+        os.remove(file)
+        
     except Exception as e:
         raise RuntimeError(f"Failed to load audio: {e}")
+
+    return np.frombuffer(out, np.float32).flatten()
+
 
 def clean_path(path_str):
     if platform.system() == "Windows":

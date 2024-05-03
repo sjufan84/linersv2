@@ -37,4 +37,6 @@ async def clone_vocals_endpoint(
 
     cloned_vocals = await clone_liner_vocals(audio_file, artist=artist, f0_adjustment=f0_adjustment)
 
-    return cloned_vocals
+    logger.info(f"Cloned vocals audio: {cloned_vocals[:100]}")
+
+    return {"cloned_vocals": cloned_vocals}

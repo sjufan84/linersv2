@@ -1,13 +1,10 @@
 import traceback
 import logging
-
-logger = logging.getLogger(__name__)
-
 import numpy as np
 import soundfile as sf
 import torch
 from io import BytesIO
-
+import os
 from infer.lib.audio import load_audio, wav2
 from infer.lib.infer_pack.models import (
     SynthesizerTrnMs256NSFsid,
@@ -16,7 +13,11 @@ from infer.lib.infer_pack.models import (
     SynthesizerTrnMs768NSFsid_nono,
 )
 from infer.modules.vc.pipeline import Pipeline
-from infer.modules.vc.utils import *
+from infer.modules.vc.utils import get_index_path_from_model, load_hubert
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 
 class VC:
@@ -97,7 +98,7 @@ class VC:
                 "",
                 "",
             )
-        person = f'{os.getenv("weight_root")}/{sid}'
+        person = f'assets/weights/{sid}'
         logger.info(f"Loading: {person}")
 
         self.cpt = torch.load(person, map_location="cpu")
@@ -128,8 +129,8 @@ class VC:
 
         self.pipeline = Pipeline(self.tgt_sr, self.config)
         n_spk = self.cpt["config"][-3]
-        index = {"value": get_index_path_from_model(sid), "__type__": "update"}
-        logger.info("Select index: " + index["value"])
+        index = 'logs/added_IVF3962_Flat_nprobe_1_brent2_v2.index'
+        logger.info("Select index: " + index)
 
         return (
             (

@@ -144,10 +144,10 @@ class Pipeline(object):
                 from infer.lib.rmvpe import RMVPE
 
                 logger.info(
-                    "Loading rmvpe model,%s" % "%s/rmvpe.pt" % os.environ["rmvpe_root"]
+                    "Loading rmvpe model, please wait for a while, it may take a few minutes"
                 )
                 self.model_rmvpe = RMVPE(
-                    "%s/rmvpe.pt" % os.environ["rmvpe_root"],
+                    'assets/rmvpe/rmvpe.pt',
                     is_half=self.is_half,
                     device=self.device,
                     # use_jit=self.config.use_jit,
