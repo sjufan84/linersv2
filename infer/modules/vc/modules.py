@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-
 class VC:
     def __init__(self, config):
         self.n_spk = None
@@ -98,7 +97,7 @@ class VC:
                 "",
                 "",
             )
-        person = f'assets/weights/{sid}'
+        person = f"assets/weights/{sid}"
         logger.info(f"Loading: {person}")
 
         self.cpt = torch.load(person, map_location="cpu")
@@ -129,7 +128,7 @@ class VC:
 
         self.pipeline = Pipeline(self.tgt_sr, self.config)
         n_spk = self.cpt["config"][-3]
-        index = 'logs/added_IVF3962_Flat_nprobe_1_brent2_v2.index'
+        index = "logs/added_IVF3962_Flat_nprobe_1_brent2_v2.index"
         logger.info("Select index: " + index)
 
         return (

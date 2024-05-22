@@ -9,16 +9,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-'''class CloneVocalsRequest(BaseModel):
+"""class CloneVocalsRequest(BaseModel):
     audio_file: UploadFile = Field(File(...), description="The audio file to clone vocals from.")
-    artist: str = Field(None, description="The artist of the song.")'''
+    artist: str = Field(None, description="The artist of the song.")"""
+
 
 @router.post("/clone_vocals")
 async def clone_vocals_endpoint(
-    audio_file: UploadFile = File(...), artist: Optional[str] = Form(None),
-    f0_adjustment: Optional[str] = Form(None)
+    audio_file: UploadFile = File(...),
+    artist: Optional[str] = Form(None),
+    f0_adjustment: Optional[str] = Form(None),
 ):
-
     """
     Clones the vocals from an audio file.
 
@@ -35,7 +36,9 @@ async def clone_vocals_endpoint(
     logger.info(f"Artist: {artist}")
     logger.info(f"f0_adjustment: {f0_adjustment}")
 
-    cloned_vocals = await clone_liner_vocals(audio_file, artist=artist, f0_adjustment=f0_adjustment)
+    cloned_vocals = await clone_liner_vocals(
+        audio_file, artist=artist, f0_adjustment=f0_adjustment
+    )
 
     logger.info(f"Cloned vocals audio: {cloned_vocals[:100]}")
 

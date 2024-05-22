@@ -145,7 +145,7 @@ class Config:
             x_query = 5
             x_center = 30
             x_max = 32
-      
+
         else:
             if self.instead:
                 logger.info(f"Use {self.instead} instead")

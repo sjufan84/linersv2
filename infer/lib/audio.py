@@ -53,11 +53,13 @@ def load_audio(file, sr):
             .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
         )
         # Log the unique values in the array
-        logger.info(f"Unique values in audio array: {len(np.unique(np.frombuffer(out, np.float32)))}")
+        logger.info(
+            f"Unique values in audio array: {len(np.unique(np.frombuffer(out, np.float32)))}"
+        )
 
         # Clean up the temporary file
         os.remove(file)
-        
+
     except Exception as e:
         raise RuntimeError(f"Failed to load audio: {e}")
 

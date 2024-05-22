@@ -1,6 +1,8 @@
 """ This module contains the FastAPI application. It's responsible for
     creating the FastAPI application and including the routers."""
+
 from fastapi import FastAPI
+
 # Import routers
 from routes.clone_routes import router as clone_routes
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,12 +34,9 @@ app = FastAPI(
     contact={
         "name": "Dave Thomas",
         "url": "https://enoughwebapp.com",
-        "email": "dave_thomas@enoughwebapp.com"
+        "email": "dave_thomas@enoughwebapp.com",
     },
-    license_info={
-        "name": "MIT License",
-        "url": "https://opensource.org/licenses/MIT"
-    }
+    license_info={"name": "MIT License", "url": "https://opensource.org/licenses/MIT"},
 )
 
 # Add CORS middleware
